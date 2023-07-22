@@ -21,15 +21,13 @@ fn main() -> Result<(), i32> {
     };
 
     let (width, height) = img.dimensions();
-    let (mut x, mut y) = (4, 3);
-    if width < height {
-        y = (x as f32 * height as f32 / width as f32).round() as u32;
-    } else {
-        x = (y as f32 * width as f32 / height as f32).round() as u32;
-    }
-    x = x.min(9);
-    y = y.min(9);
-
+    let (x, y) = {
+        if width < height {
+            (4, (4.0 * height as f32 / width as f32).round() as u32)
+        } else {
+            ((4.0 * width as f32 / height as f32).round() as u32, 4)
+        }
+    };
 
     let blurhash = encode(x, y, width, height, &img.to_rgba8().into_vec());
     println!("{}", blurhash);
