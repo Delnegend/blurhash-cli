@@ -7,7 +7,7 @@ fn main() -> Result<(), i32> {
     let args: Vec<String> = args().collect();
 
     if args.len() < 2 {
-        println!("Usage: blurhash <path-to-image>");
+        eprintln!("Usage: blurhash <path-to-image>");
         return Err(1);
     }
 
