@@ -30,7 +30,6 @@ fn main() -> Result<(), i32> {
     x = x.min(9);
     y = y.min(9);
 
-    println!("{}x{}", x, y);
 
     let blurhash = encode(x, y, width, height, &img.to_rgba8().into_vec());
     println!("{}", blurhash);
