@@ -23,9 +23,9 @@ fn main() -> Result<(), i32> {
     let (width, height) = img.dimensions();
     let (x, y) = {
         if width < height {
-            (4, (4.0 * height as f32 / width as f32).round() as u32)
+            (3, (3.0 * height as f32 / width as f32).round() as u32)
         } else {
-            ((4.0 * width as f32 / height as f32).round() as u32, 4)
+            ((3.0 * width as f32 / height as f32).round() as u32, 3)
         }
     };
 
