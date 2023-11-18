@@ -4,14 +4,14 @@ use image::{DynamicImage, GenericImageView};
 use std::env::args;
 use std::process::Command;
 
-fn ffmpeg_transcode(input_path: &str) -> Option<DynamicImage> {
+fn ffmpeg_transcode(input_path: &str) -> Result<DynamicImage, String> {
     let ffmpeg_check = Command::new("ffmpeg").arg("-version").output();
     if ffmpeg_check.is_err() {
-        return None;
+        return Err(String::from("ffmpeg not found in PATH"));
     }
 
     let output = Command::new("ffmpeg")
-        .args(&[
+        .args([
             "-i",
             input_path,
             "-vf",
@@ -24,12 +24,12 @@ fn ffmpeg_transcode(input_path: &str) -> Option<DynamicImage> {
             "-",
         ])
         .output()
-        .expect("failed to transcode image to png with ffmpeg");
+        .expect("failed to transcode image to png");
 
     if !output.status.success() {
-        return None;
+        return Err(String::from_utf8(output.stderr).unwrap());
     }
-    Some(image::load_from_memory(&output.stdout).unwrap())
+    Ok(image::load_from_memory(&output.stdout).unwrap())
 }
 
 fn main() -> Result<(), i32> {
@@ -57,6 +57,6 @@ fn main() -> Result<(), i32> {
     };
 
     let blurhash = encode(x, y, width, height, &img.to_rgba8().into_vec());
-    println!("{}", blurhash);
-    return Ok(());
+    println!("{} {} {}", blurhash.unwrap(), x, y);
+    Ok(())
 }
