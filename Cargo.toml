@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 blurhash = "0.2.0"
-image = "0.24.6"
+image = "0.24.7"
 
 [profile.release]
 strip = true
