@@ -1,50 +1,27 @@
 use blurhash::encode;
 use image::imageops::FilterType::Gaussian;
-use image::{DynamicImage, GenericImageView};
+use image::GenericImageView;
 use std::env::args;
-use std::process::Command;
+use std::fs;
 
-fn ffmpeg_transcode(input_path: &str) -> Result<DynamicImage, String> {
-    let ffmpeg_check = Command::new("ffmpeg").arg("-version").output();
-    if ffmpeg_check.is_err() {
-        return Err(String::from("ffmpeg not found in PATH"));
-    }
+mod transcode;
 
-    let output = Command::new("ffmpeg")
-        .args([
-            "-i",
-            input_path,
-            "-vf",
-            "scale=100:-1",
-            "-y",
-            "-f",
-            "image2pipe",
-            "-vcodec",
-            "png",
-            "-",
-        ])
-        .output()
-        .expect("failed to transcode image to png");
-
-    if !output.status.success() {
-        return Err(String::from_utf8(output.stderr).unwrap());
-    }
-    Ok(image::load_from_memory(&output.stdout).unwrap())
+fn is_directory(path: &str) -> bool {
+    let metadata = fs::metadata(path).unwrap();
+    metadata.is_dir()
 }
 
 fn main() -> Result<(), i32> {
     let args: Vec<String> = args().collect();
 
-    if args.len() < 2 {
+    if args.len() != 2 || is_directory(&args[1]) {
         eprintln!("Usage: blurhash <path-to-image>");
         return Err(1);
     }
 
-    let img = match image::open(&args[1]) {
+    let img = match transcode::transcode(&args[1]) {
         Ok(img) => img.resize(100, 100, Gaussian),
-        Err(_) => ffmpeg_transcode(&args[1]).expect(
-            "failed to open image, make sure you have ffmpeg installed and the image is supported",
-        ),
+        Err(_) => return Err(1),
     };
 
     let (width, height) = img.dimensions();
